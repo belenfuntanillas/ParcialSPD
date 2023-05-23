@@ -1,0 +1,176 @@
+// Funtanillas Belén 1B 
+// Primer parcial 
+
+#define PIN_BOTON_SUBIR 2
+#define PIN_BOTON_BAJAR 3
+#define PIN_BOTON_DETENER 4
+#define PIN_LED_VERDE 5
+#define PIN_LED_ROJO 6
+#define PIN_SEGMENTO_A 7
+#define PIN_SEGMENTO_B 8
+#define PIN_SEGMENTO_C 9
+#define PIN_SEGMENTO_D 10
+#define PIN_SEGMENTO_E 11
+#define PIN_SEGMENTO_F 12
+#define PIN_SEGMENTO_G 13
+
+// Variables de control
+int pisoActual = 0;
+bool enMovimiento = false;
+bool enPausa = false;
+
+// Función para actualizar el estado del display 7 segmentos
+void actualizarDisplay(int piso) {
+ switch (piso) {
+    case 0:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, HIGH);
+      digitalWrite(PIN_SEGMENTO_F, HIGH);
+      digitalWrite(PIN_SEGMENTO_G, LOW);
+      break;
+    case 1:
+      digitalWrite(PIN_SEGMENTO_A, LOW);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, LOW);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, LOW);
+      digitalWrite(PIN_SEGMENTO_G, LOW);
+      break;
+    case 2:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, LOW);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, HIGH);
+      digitalWrite(PIN_SEGMENTO_F, LOW);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    case 3:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, LOW);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    case 4:
+      digitalWrite(PIN_SEGMENTO_A, LOW);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, LOW);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, HIGH);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    case 5:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, LOW);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, HIGH);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    case 6:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, LOW);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, HIGH);
+      digitalWrite(PIN_SEGMENTO_F, HIGH);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    case 7:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, LOW);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, LOW);
+      digitalWrite(PIN_SEGMENTO_G, LOW);
+      break;
+    case 8:
+      digitalWrite(PIN_SEGMENTO_A, HIGH);
+      digitalWrite(PIN_SEGMENTO_B, HIGH);
+      digitalWrite(PIN_SEGMENTO_C, HIGH);
+      digitalWrite(PIN_SEGMENTO_D, HIGH);
+      digitalWrite(PIN_SEGMENTO_E, HIGH);
+      digitalWrite(PIN_SEGMENTO_F, HIGH);
+      digitalWrite(PIN_SEGMENTO_G, HIGH);
+      break;
+    default:
+      //estado desconocido
+      digitalWrite(PIN_SEGMENTO_A, LOW);
+      digitalWrite(PIN_SEGMENTO_B, LOW);
+      digitalWrite(PIN_SEGMENTO_C, LOW);
+      digitalWrite(PIN_SEGMENTO_D, LOW);
+      digitalWrite(PIN_SEGMENTO_E, LOW);
+      digitalWrite(PIN_SEGMENTO_F, LOW);
+      digitalWrite(PIN_SEGMENTO_G, LOW);
+      break;
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_BOTON_SUBIR, INPUT_PULLUP);
+  pinMode(PIN_BOTON_BAJAR, INPUT_PULLUP);
+  pinMode(PIN_BOTON_DETENER, INPUT_PULLUP);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_SEGMENTO_A, OUTPUT);
+  pinMode(PIN_SEGMENTO_B, OUTPUT);
+  pinMode(PIN_SEGMENTO_C, OUTPUT);
+  pinMode(PIN_SEGMENTO_D, OUTPUT);
+  pinMode(PIN_SEGMENTO_E, OUTPUT);
+  pinMode(PIN_SEGMENTO_F, OUTPUT);
+  pinMode(PIN_SEGMENTO_G, OUTPUT);
+
+  // Inicializar el display 7 segmentos en el piso inicial (0)
+  actualizarDisplay(pisoActual);
+}
+
+void loop() {
+  // Verificar el estado de los botones
+  if (digitalRead(PIN_BOTON_SUBIR) == LOW) {
+    pisoActual++;
+    enMovimiento = true;
+    enPausa = false;
+    digitalWrite(PIN_LED_VERDE, HIGH);
+    digitalWrite(PIN_LED_ROJO, LOW);
+  } else if (digitalRead(PIN_BOTON_BAJAR) == LOW) {
+    pisoActual--;
+    enMovimiento = true;
+    enPausa = false;
+    digitalWrite(PIN_LED_VERDE, HIGH);
+    digitalWrite(PIN_LED_ROJO, LOW);
+  } else if (digitalRead(PIN_BOTON_DETENER) == LOW) {
+    enMovimiento = false;
+    enPausa = true;
+    digitalWrite(PIN_LED_VERDE, LOW);
+    digitalWrite(PIN_LED_ROJO, HIGH);
+  }
+
+  // Actualizar el estado del display
+  actualizarDisplay(pisoActual);
+
+  Serial.print("Piso: ");
+  Serial.print(pisoActual);
+  Serial.print(" | ");
+  if (enMovimiento) {
+    Serial.println("En movimiento");
+  } else if (enPausa) {
+    Serial.println("En pausa");
+  } else {
+    Serial.println("Detenido");
+  }
+
+  //tiempo de trayecto entre pisos
+  delay(3000);
+}
+
