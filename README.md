@@ -1,5 +1,5 @@
 # ParcialSPD
-![Tinkercad]/ParcialSPD/IMG/parcial_proyecto.png
+![Tinkercad](ParcialSPD/IMG/parcial_proyecto.png)
 
 # Integrante
 - Funtanillas, Belén 
