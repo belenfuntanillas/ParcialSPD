@@ -1,5 +1,11 @@
 // Funtanillas Belén 1B 
-// Primer parcial 
+// Primer parcial SPD
+/*
+  Se nos pide armar un modelo de montacarga funcional como maqueta para un hospital. El
+objetivo es que implementes un sistema que pueda recibir ordenes de subir, bajar o pausar
+desde diferentes pisos y muestre el estado actual del montacargas en el display 7
+segmentos.
+*/
 
 #define PIN_BOTON_SUBIR 2
 #define PIN_BOTON_BAJAR 3
@@ -13,13 +19,114 @@
 #define PIN_SEGMENTO_E 11
 #define PIN_SEGMENTO_F 12
 #define PIN_SEGMENTO_G 13
+#define TIEMPO 3000
 
-// Variables de control
+
+//variables de control
 int pisoActual = 0;
 bool enMovimiento = false;
 bool enPausa = false;
+int botonBajar;
+int botonSubir;
+int botonDetener;
 
-// Función para actualizar el estado del display 7 segmentos
+int tiempo_actual;
+int tiempo_anterior=0;
+
+//configuro los pines como entrada y salida
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_BOTON_SUBIR, INPUT_PULLUP);
+  pinMode(PIN_BOTON_BAJAR, INPUT_PULLUP);
+  pinMode(PIN_BOTON_DETENER, INPUT_PULLUP);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_SEGMENTO_A, OUTPUT);
+  pinMode(PIN_SEGMENTO_B, OUTPUT);
+  pinMode(PIN_SEGMENTO_C, OUTPUT);
+  pinMode(PIN_SEGMENTO_D, OUTPUT);
+  pinMode(PIN_SEGMENTO_E, OUTPUT);
+  pinMode(PIN_SEGMENTO_F, OUTPUT);
+  pinMode(PIN_SEGMENTO_G, OUTPUT);
+}
+
+void imprimir_piso(bool enMovimiento, bool enPausa);
+
+void loop() {
+   //capturo los estados de los botones
+  botonSubir = digitalRead(PIN_BOTON_SUBIR);
+  botonBajar = digitalRead(PIN_BOTON_BAJAR);
+  botonDetener = digitalRead(PIN_BOTON_DETENER);
+  	// si presionan el boton subir
+    while (botonSubir == LOW) 
+    {
+      tiempo_actual= millis();
+      digitalWrite(PIN_LED_VERDE, HIGH);
+      digitalWrite(PIN_LED_ROJO, LOW);
+      if( tiempo_actual - tiempo_anterior >= TIEMPO)
+    {
+      pisoActual++;
+      enMovimiento = true;
+      enPausa = false;
+      actualizarDisplay(pisoActual);
+      imprimir_piso(enMovimiento, enPausa);
+      tiempo_anterior = tiempo_actual ;
+     }
+      if(digitalRead(PIN_BOTON_DETENER)== LOW || digitalRead(PIN_BOTON_BAJAR)== LOW)
+      {
+      	break;
+      }
+      if(pisoActual == 8){
+        enMovimiento = false;
+        enPausa = true;
+        digitalWrite(PIN_LED_VERDE, LOW);
+        digitalWrite(PIN_LED_ROJO, HIGH);
+        imprimir_piso(enMovimiento, enPausa);
+        break;
+      }
+    }
+  	//si presionan el boton bajar
+    while (botonBajar == LOW) 
+    {
+      tiempo_actual= millis();
+      digitalWrite(PIN_LED_VERDE, HIGH);
+      digitalWrite(PIN_LED_ROJO, LOW);
+      if( tiempo_actual - tiempo_anterior >= TIEMPO)
+    {
+      pisoActual--;
+      enMovimiento = true;
+      enPausa = false;
+      actualizarDisplay(pisoActual);
+      imprimir_piso(enMovimiento, enPausa);
+       tiempo_anterior = tiempo_actual ;
+     }
+      if(digitalRead(PIN_BOTON_DETENER)== LOW || digitalRead(PIN_BOTON_SUBIR)== LOW)
+      {
+      	break;
+      }
+      if(pisoActual == 0){
+        enMovimiento = false;
+        enPausa = true;
+        digitalWrite(PIN_LED_VERDE, LOW);
+        digitalWrite(PIN_LED_ROJO, HIGH);
+        imprimir_piso(enMovimiento, enPausa);
+        break;
+      }
+    }//si presionan el boton detener
+  	if (botonDetener == LOW) 
+    {
+      enMovimiento = false;
+      enPausa = true;
+      digitalWrite(PIN_LED_VERDE, LOW);
+      digitalWrite(PIN_LED_ROJO, HIGH);
+      actualizarDisplay(pisoActual);
+      imprimir_piso(enMovimiento, enPausa);
+  	}
+
+  //actualizo el estado del display
+  actualizarDisplay(pisoActual);
+}
+//configuro los pisos
 void actualizarDisplay(int piso) {
  switch (piso) {
     case 0:
@@ -114,63 +221,18 @@ void actualizarDisplay(int piso) {
       digitalWrite(PIN_SEGMENTO_G, LOW);
       break;
   }
+}//muestro en el serial el piso y su estado correspondiente
+void imprimir_piso(bool enMovimiento, bool enPausa)
+{
+    Serial.print("Piso: ");
+    Serial.print(pisoActual);
+    Serial.print(" | ");
+    if (enMovimiento) {
+      Serial.println("En movimiento");
+    } else if (enPausa) {
+      Serial.println("En pausa");
+    } else {
+      Serial.println("Detenido");
+    }
+
 }
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(PIN_BOTON_SUBIR, INPUT_PULLUP);
-  pinMode(PIN_BOTON_BAJAR, INPUT_PULLUP);
-  pinMode(PIN_BOTON_DETENER, INPUT_PULLUP);
-  pinMode(PIN_LED_VERDE, OUTPUT);
-  pinMode(PIN_LED_ROJO, OUTPUT);
-  pinMode(PIN_SEGMENTO_A, OUTPUT);
-  pinMode(PIN_SEGMENTO_B, OUTPUT);
-  pinMode(PIN_SEGMENTO_C, OUTPUT);
-  pinMode(PIN_SEGMENTO_D, OUTPUT);
-  pinMode(PIN_SEGMENTO_E, OUTPUT);
-  pinMode(PIN_SEGMENTO_F, OUTPUT);
-  pinMode(PIN_SEGMENTO_G, OUTPUT);
-
-  // Inicializar el display 7 segmentos en el piso inicial (0)
-  actualizarDisplay(pisoActual);
-}
-
-void loop() {
-  // Verificar el estado de los botones
-  if (digitalRead(PIN_BOTON_SUBIR) == LOW) {
-    pisoActual++;
-    enMovimiento = true;
-    enPausa = false;
-    digitalWrite(PIN_LED_VERDE, HIGH);
-    digitalWrite(PIN_LED_ROJO, LOW);
-  } else if (digitalRead(PIN_BOTON_BAJAR) == LOW) {
-    pisoActual--;
-    enMovimiento = true;
-    enPausa = false;
-    digitalWrite(PIN_LED_VERDE, HIGH);
-    digitalWrite(PIN_LED_ROJO, LOW);
-  } else if (digitalRead(PIN_BOTON_DETENER) == LOW) {
-    enMovimiento = false;
-    enPausa = true;
-    digitalWrite(PIN_LED_VERDE, LOW);
-    digitalWrite(PIN_LED_ROJO, HIGH);
-  }
-
-  // Actualizar el estado del display
-  actualizarDisplay(pisoActual);
-
-  Serial.print("Piso: ");
-  Serial.print(pisoActual);
-  Serial.print(" | ");
-  if (enMovimiento) {
-    Serial.println("En movimiento");
-  } else if (enPausa) {
-    Serial.println("En pausa");
-  } else {
-    Serial.println("Detenido");
-  }
-
-  //tiempo de trayecto entre pisos
-  delay(3000);
-}
-
