@@ -1,6 +1,9 @@
 # ParcialSPD
 ![Tinkercad](ParcialSPD/IMG/parcial_proyecto.png)
 
+# Diagrama esquemático del circuito
+[Ver diagrama](ParcialSPD/IMG/diagrama.pdf)
+
 # Integrante
 - Funtanillas, Belén 
 
